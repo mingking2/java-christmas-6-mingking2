@@ -2,6 +2,7 @@ package christmas.service;
 
 import christmas.dto.DateDTO;
 import christmas.dto.OrderMenuRequest;
+import christmas.dto.OrderResponse;
 import christmas.model.Order;
 import christmas.model.Date;
 import christmas.model.OrderMenu;
@@ -24,14 +25,14 @@ public class OrderService {
         return new OrderMenu(orderMenuRequest);
     }
 
-    public Order createOrder(DateDTO dateDTO, OrderMenuRequest orderMenuRequest) {
+    public OrderResponse createOrder(DateDTO dateDTO, OrderMenuRequest orderMenuRequest) {
         Date date = createDateOfVisit(dateDTO);
         OrderMenu orderMenu = createOrderMenu(orderMenuRequest);
         Order order = new Order(date, orderMenu);
 
         orderRepository.save(order);
 
-        return order;
+        return new OrderResponse(order.getId(), order.getTotalPrice());
     }
 
 
