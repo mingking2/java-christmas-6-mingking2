@@ -69,3 +69,117 @@
 
 ---
 
+## 👨🏻‍💻 프로젝트 구조
+
+```agsl
+├─main
+│  └─java
+│      └─christmas
+│          │  Application.java
+│          │
+│          ├─constant
+│          │      DateConstant.java
+│          │      DiscountConstant.java
+│          │      ErrorConstant.java
+│          │      MenuConstant.java
+│          │      UtilConstant.java
+│          │
+│          ├─controller
+│          │      OrderController.java
+│          │
+│          ├─dto
+│          │      DateDTO.java
+│          │      OrderMenuRequest.java
+│          │
+│          ├─model
+│          │  │  Date.java
+│          │  │  Menu.java
+│          │  │  MenuType.java
+│          │  │  Order.java
+│          │  │  OrderMenu.java
+│          │  │
+│          │  └─discount
+│          │          ChristmasDiscount.java
+│          │          Discount.java
+│          │          GiftPriceDiscount.java
+│          │          SpecialDiscount.java
+│          │          WeekdayDiscount.java
+│          │          WeekendDiscount.java
+│          │
+│          ├─repository
+│          │      OrderRepository.java
+│          │
+│          ├─service
+│          │      DiscountService.java
+│          │      OrderService.java
+│          │
+│          ├─util
+│          │      Format.java
+│          │
+│          ├─validator
+│          │      DateValidator.java
+│          │      MenuValidator.java
+│          │
+│          └─view
+│                  ErrorView.java
+│                  InputView.java
+│                  OutputView.java
+│
+└─test
+    └─java
+        └─christmas
+                ApplicationTest.java
+                DiscountServiceTest.java
+                OrderServiceTest.java
+
+```
+
+
+- **Controller**: 주문 시스템을 제어하고 사용자 입력을 처리하는 클래스
+- **Model**: 주문, 메뉴, 날짜 및 할인과 관련된 클래스
+- **View**: 사용자에게 결과를 제시하는 클래스
+- **Service**: 주문 생성, 할인 및 이벤트 혜택을 계산하는 클래스
+- **Repository**: 주문 정보를 저장하고 검색하는 클래스
+- **DTO**: 데이터 전송 객체로 데이터 전송에 사용
+- **Constant**: 상수 값을 포함하는 클래스
+- **Validator**: 사용자 입력을 검증하기 위한 클래스
+- **Util**: 데이터 형식 변환 및 기타 목적을 위한 유틸리티 클래스
+
+
+### 🔎 자세한 클래스 및 모듈 정보
+#### Controller
+- OrderController: 주문 흐름을 제어하고 결과를 출력하는 클래스입니다.
+
+#### Model
+- Date: 주문 날짜를 처리합니다.
+- Menu: 사용 가능한 메뉴 및 메뉴 유형을 정의하는 열거형 클래스입니다.
+- MenuType: 메뉴 유형을 정의하는 열거형 클래스입니다.
+- Order: 주문 정보를 포함하는 클래스입니다.
+- OrderMenu: 주문된 메뉴에 대한 정보를 포함하는 클래스입니다.
+
+##### Model.discount
+- Discount: 할인과 관련된 인터페이스입니다.
+
+##### Model.discount.impl
+- ChristmasDiscount: 크리스마스 이벤트 할인을 계산하는 클래스입니다.
+- GiftPriceDiscount: 선물 이벤트 혜택을 처리하는 클래스입니다.
+- SpecialDiscount: 특별 이벤트 할인을 계산하는 클래스입니다.
+- WeekdayDiscount: 평일 이벤트 할인을 계산하는 클래스입니다.
+- WeekendDiscount: 주말 이벤트 할인을 계산하는 클래스입니다.
+
+#### Repository
+- OrderRepository: 주문 정보를 저장하고 검색하는 클래스입니다.
+
+#### Service
+- DiscountService: 할인 및 이벤트 혜택을 계산하는 서비스 클래스입니다.
+
+#### Util
+- Format: 데이터 형식 변환을 위한 유틸리티 클래스입니다.
+
+#### Validator
+- DateValidator: 날짜 입력을 검증하는 클래스입니다.
+- MenuValidator: 메뉴 주문 입력을 검증하는 클래스입니다.
+
+#### View
+- ErrorView: 에러 메시지를 출력하는 클래스입니다.
+- InputView: 사용자 입력을 받는 클래스입니다.
