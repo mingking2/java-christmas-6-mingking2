@@ -2,7 +2,7 @@ package christmas.controller;
 
 import christmas.dto.DateDTO;
 import christmas.dto.OrderMenuRequest;
-import christmas.repository.OrderRepository;
+import christmas.dto.OrderResponse;
 import christmas.service.DiscountService;
 import christmas.service.OrderService;
 import christmas.util.Format;
@@ -23,44 +23,45 @@ public class OrderController {
 
 
     public void run() {
-        inputDateAndOrderMenu();
-        applyDiscounts();
-        printResult();
+        OrderResponse orderResponse = inputDateAndOrderMenu();
+        applyDiscounts(orderResponse.getId());
+        printResult(orderResponse.getTotalPrice());
     }
 
-    public void inputDateAndOrderMenu() {
+    public OrderResponse inputDateAndOrderMenu() {
         String inputDate = InputView.readDate();
         DateDTO dateDTO = Format.stringToInteger(inputDate);
 
         String inputOrderMenu = InputView.readMenu();
         OrderMenuRequest orderMenuRequest = Format.stringToMap(inputOrderMenu);
 
-        orderService.createOrder(dateDTO, orderMenuRequest);
+        OrderResponse orderResponse = orderService.createOrder(dateDTO, orderMenuRequest);
 
         OutputView.printEventMessage(dateDTO);
         OutputView.printMenu(orderMenuRequest);
+
+        return orderResponse;
     }
 
-    public void applyDiscounts() {
-        discountService.applyAllDiscounts();
+    public void applyDiscounts(Long OrderId) {
+        discountService.applyAllDiscounts(OrderId);
     }
 
 
-    public void printResult() {
-        printTotalPriceBeforeDiscounts();
-        printBonusMenu();
+    public void printResult(int totalPrice) {
+        printTotalPriceBeforeDiscounts(totalPrice);
+        printBonusMenu(totalPrice);
         printBenefits();
         printTotalBenefits();
-        printTotalPriceAfterDiscounts();
+        printTotalPriceAfterDiscounts(totalPrice);
     }
 
-    public void printTotalPriceBeforeDiscounts() {
-        int totalPriceBeforeDiscounts = discountService.calculateTotalPrice();
-        OutputView.printBeforeSalePrice(totalPriceBeforeDiscounts);
+    public void printTotalPriceBeforeDiscounts(int totalPrice) {
+        OutputView.printBeforeSalePrice(totalPrice);
     }
 
-    public void printBonusMenu() {
-        boolean hasGiftPriceDiscount = discountService.createGiftPriceDiscount() != null;
+    public void printBonusMenu(int totalPrice) {
+        boolean hasGiftPriceDiscount = discountService.createGiftPriceDiscount(totalPrice) != null;
         OutputView.printBonusMenu(hasGiftPriceDiscount);
     }
 
@@ -73,11 +74,10 @@ public class OrderController {
         OutputView.printTotalBenefitPrice(totalDiscount);
     }
 
-    public void printTotalPriceAfterDiscounts() {
-        int totalPriceBeforeDiscounts = discountService.calculateTotalPrice();
-        int giftPrice = discountService.calcualteGiftPrice(totalPriceBeforeDiscounts);
+    public void printTotalPriceAfterDiscounts(int totalPrice) {
+        int giftPrice = discountService.calculateGiftPrice(totalPrice);
         int totalDiscount = discountService.calculateTotalDiscount();
-        int totalPriceAfterDiscounts = totalPriceBeforeDiscounts - totalDiscount + giftPrice;
+        int totalPriceAfterDiscounts = totalPrice - totalDiscount + giftPrice;
         OutputView.printAfterSalePrice(totalPriceAfterDiscounts);
         OutputView.printEventBadge(totalDiscount);
     }
