@@ -11,6 +11,7 @@ import static org.mockito.Mockito.when;
 
 import christmas.dto.DateDTO;
 import christmas.dto.OrderMenuRequest;
+import christmas.dto.OrderResponse;
 import christmas.model.Date;
 import christmas.model.Order;
 import christmas.model.OrderMenu;
@@ -27,8 +28,9 @@ public class OrderServiceTest {
 
     @BeforeEach
     void setUp() {
-        orderRepository = mock(OrderRepository.class);
+        orderRepository = new OrderRepository();
         orderService = new OrderService(orderRepository);
+        orderRepository.clear();
     }
 
     @Test
@@ -36,17 +38,17 @@ public class OrderServiceTest {
         // Arrange
         DateDTO dateDTO = Format.stringToInteger("3");
         OrderMenuRequest orderMenuRequest = Format.stringToMap("티본스테이크-1,바비큐립-1,초코케이크-2,제로콜라-1");
-        when(orderRepository.save(any())).thenReturn(new Order(new Date(dateDTO), new OrderMenu(orderMenuRequest)));
+        Order order = new Order(new Date(dateDTO), new OrderMenu(orderMenuRequest));
+        orderRepository.save(order);
 
         // Act
-        Order result = orderService.createOrder(dateDTO, orderMenuRequest);
+        OrderResponse result = orderService.createOrder(dateDTO, orderMenuRequest);
+        Order bringOrder = orderRepository.findById(result.getId());
 
         // Assert
-        assertAll(
-                () -> assertNotNull(result),
-                () -> assertEquals(dateDTO.getDate(), result.getDate().getDate()),
-                () -> verify(orderRepository, times(1)).save(any())
-        );
+        assertNotNull(result);
+        assertEquals(dateDTO.getDate(), bringOrder.getDate().getDate());
+        assertEquals(orderMenuRequest.getMenus(), bringOrder.getOrderMenu().getMenus());
     }
 
     @Test
