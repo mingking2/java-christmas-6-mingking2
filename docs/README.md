@@ -90,6 +90,7 @@
 │          ├─dto
 │          │      DateDTO.java
 │          │      OrderMenuRequest.java
+│          │      OrderResponse.java
 │          │
 │          ├─model
 │          │  │  Date.java
@@ -154,7 +155,7 @@
 - Date: 주문 날짜를 처리합니다.
 - Menu: 사용 가능한 메뉴 및 메뉴 유형을 정의하는 열거형 클래스입니다.
 - MenuType: 메뉴 유형을 정의하는 열거형 클래스입니다.
-- Order: 주문 정보를 포함하는 클래스입니다.
+- Order: 주문 정보와 총 금액을 포함하는 클래스입니다.
 - OrderMenu: 주문된 메뉴에 대한 정보를 포함하는 클래스입니다.
 
 ##### Model.discount
@@ -167,10 +168,17 @@
 - WeekdayDiscount: 평일 이벤트 할인을 계산하는 클래스입니다.
 - WeekendDiscount: 주말 이벤트 할인을 계산하는 클래스입니다.
 
+#### DTO
+- DateDTO: 날짜 데이터를 전송하기 클래스입니다.
+- OrderMenuRequest: 메뉴 및 수량 데이터를 전송하기 클래스입니다.
+- OrderResponse: Id 및 총금액 데이터를 전송하기 클래스이다.
+
+
 #### Repository
 - OrderRepository: 주문 정보를 저장하고 검색하는 클래스입니다.
 
 #### Service
+- OrderService: 주문 생성 및 저장하는 서비스 클래스이다.
 - DiscountService: 할인 및 이벤트 혜택을 계산하는 서비스 클래스입니다.
 
 #### Util
@@ -183,3 +191,4 @@
 #### View
 - ErrorView: 에러 메시지를 출력하는 클래스입니다.
 - InputView: 사용자 입력을 받는 클래스입니다.
+- OutputView: 결과를 출력하는 클래스입니다.
