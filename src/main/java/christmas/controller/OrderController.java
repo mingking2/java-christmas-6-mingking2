@@ -13,15 +13,19 @@ public class OrderController {
 
 
     private final OrderService orderService;
+    private final DiscountService discountService;
 
-    public OrderController(OrderService orderService) {
+    public OrderController(OrderService orderService, DiscountService discountService) {
         this.orderService = orderService;
+        this.discountService = discountService;
     }
 
 
 
     public void run() {
         inputDateAndOrderMenu();
+        applyDiscounts();
+        printResult();
     }
 
     public void inputDateAndOrderMenu() {
@@ -36,5 +40,49 @@ public class OrderController {
         OutputView.printEventMessage(dateDTO);
         OutputView.printMenu(orderMenuRequest);
     }
+
+    public void applyDiscounts() {
+        discountService.applyAllDiscounts();
+    }
+
+
+    public void printResult() {
+        printTotalPriceBeforeDiscounts();
+        printBonusMenu();
+        printBenefits();
+        printTotalBenefits();
+        printTotalPriceAfterDiscounts();
+    }
+
+    public void printTotalPriceBeforeDiscounts() {
+        int totalPriceBeforeDiscounts = discountService.calculateTotalPrice();
+        OutputView.printBeforeSalePrice(totalPriceBeforeDiscounts);
+    }
+
+    public void printBonusMenu() {
+        boolean hasGiftPriceDiscount = discountService.createGiftPriceDiscount() != null;
+        OutputView.printBonusMenu(hasGiftPriceDiscount);
+    }
+
+    public void printBenefits() {
+        OutputView.printBenefit(discountService.getDiscounts());
+    }
+
+    public void printTotalBenefits() {
+        int totalDiscount = discountService.calculateTotalDiscount();
+        OutputView.printTotalBenefitPrice(totalDiscount);
+    }
+
+    public void printTotalPriceAfterDiscounts() {
+        int totalPriceBeforeDiscounts = discountService.calculateTotalPrice();
+        int giftPrice = discountService.calcualteGiftPrice(totalPriceBeforeDiscounts);
+        int totalDiscount = discountService.calculateTotalDiscount();
+        int totalPriceAfterDiscounts = totalPriceBeforeDiscounts - totalDiscount + giftPrice;
+        OutputView.printAfterSalePrice(totalPriceAfterDiscounts);
+        OutputView.printEventBadge(totalDiscount);
+    }
+
+
+
 
 }
