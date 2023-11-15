@@ -26,4 +26,8 @@ public class OrderRepository {
         return store.get(id);
     }
 
+    public void clear() {
+        store.clear();
+    }
+
 }
