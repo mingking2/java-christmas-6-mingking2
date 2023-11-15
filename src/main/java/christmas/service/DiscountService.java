@@ -20,7 +20,6 @@ import java.util.Map;
 public class DiscountService {
 
     private final OrderRepository orderRepository;
-    private Order order;
     private List<Discount> discounts;
 
     public DiscountService(OrderRepository orderRepository) {
@@ -32,13 +31,17 @@ public class DiscountService {
         return discounts;
     }
 
-    public void applyAllDiscounts() {
-        order = orderRepository.findById(1L);
-        applyDiscount(createChristmasDiscount());
-        applyDiscount(createWeekdayDiscount());
-        applyDiscount(createWeekendDiscount());
-        applyDiscount(createSpecialDiscount());
-        applyDiscount(createGiftPriceDiscount());
+    public void applyAllDiscounts(Long OrderId) {
+        Order order = orderRepository.findById(OrderId);
+        Date date = order.getDate();
+        OrderMenu orderMenu = order.getOrderMenu();
+        int totalPrice = order.getTotalPrice();
+
+        applyDiscount(createChristmasDiscount(date));
+        applyDiscount(createWeekdayDiscount(date, orderMenu));
+        applyDiscount(createWeekendDiscount(date, orderMenu));
+        applyDiscount(createSpecialDiscount(date));
+        applyDiscount(createGiftPriceDiscount(totalPrice));
     }
 
     public void applyDiscount(Discount discount) {
@@ -48,21 +51,16 @@ public class DiscountService {
     }
 
 
-    public Discount createChristmasDiscount() {
-        Date date = order.getDate();
-
-        if (date.isChristmasDay()) {
-            Discount christmasDiscount = new ChristmasDiscount();
-            christmasDiscount.calcuateDiscount(date.getDate(), 0);
-            return christmasDiscount;
-        }
-        return null;
+    public Discount createChristmasDiscount(Date date) {
+            if (date.isChristmasDay()) {
+                Discount christmasDiscount = new ChristmasDiscount();
+                christmasDiscount.calcuateDiscount(date.getDate(), 0);
+                return christmasDiscount;
+            }
+            return null;
     }
 
-    public Discount createWeekdayDiscount() {
-        OrderMenu orderMenu = order.getOrderMenu();
-        Date date = order.getDate();
-
+    public Discount createWeekdayDiscount(Date date, OrderMenu orderMenu) {
         if (date.isWeekday()) {
             Discount weekdayDiscount = new WeekdayDiscount();
             int dessertCount = countTitleMenu(orderMenu, MenuType.DESSERT);
@@ -72,10 +70,7 @@ public class DiscountService {
         return null;
     }
 
-    public Discount createWeekendDiscount() {
-        OrderMenu orderMenu = order.getOrderMenu();
-        Date date = order.getDate();
-
+    public Discount createWeekendDiscount(Date date, OrderMenu orderMenu) {
         if (!date.isWeekday()) {
             Discount weekendDiscount = new WeekendDiscount();
             int mainCount = countTitleMenu(orderMenu, MenuType.MAIN);
@@ -93,9 +88,7 @@ public class DiscountService {
                 .sum();
     }
 
-    public Discount createSpecialDiscount() {
-        Date date = order.getDate();
-
+    public Discount createSpecialDiscount(Date date) {
         if (date.isSpecial()) {
             Discount specialDiscount = new SpecialDiscount();
             specialDiscount.calcuateDiscount(date.getDate(), 0);
@@ -104,9 +97,8 @@ public class DiscountService {
         return null;
     }
 
-    public Discount createGiftPriceDiscount() {
-        int totalPriceBeforeDiscounts = calculateTotalPrice();
-        if (createQualifiedForGift(totalPriceBeforeDiscounts)) {
+    public Discount createGiftPriceDiscount(int totalPrice) {
+        if (createQualifiedForGift(totalPrice)) {
             Discount giftPriceDiscount = new GiftPriceDiscount();
             giftPriceDiscount.calcuateDiscount(0, DiscountConstant.BONUS_GIFT_PRICE);
             return giftPriceDiscount;
@@ -119,18 +111,11 @@ public class DiscountService {
         return totalPriceBeforeDiscounts >= DiscountConstant.GIFT_PRICE;
     }
 
-    public int calcualteGiftPrice(int totalPriceBeforeDiscounts) {
+    public int calculateGiftPrice(int totalPriceBeforeDiscounts) {
         if (createQualifiedForGift(totalPriceBeforeDiscounts)) {
             return DiscountConstant.BONUS_GIFT_PRICE;
         }
         return 0;
-    }
-
-    public int calculateTotalPrice() {
-        OrderMenu orderMenu = order.getOrderMenu();
-        return orderMenu.getMenus().entrySet().stream()
-                .mapToInt(entry -> entry.getKey().getMenuPrice() * entry.getValue())
-                .sum();
     }
 
     public int calculateTotalDiscount() {
