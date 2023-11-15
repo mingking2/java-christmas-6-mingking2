@@ -30,8 +30,9 @@ public class DiscountServiceTest {
 
     @BeforeEach
     void setUp() {
-        orderRepository = mock(OrderRepository.class);
+        orderRepository = new OrderRepository();
         discountService = new DiscountService(orderRepository);
+        orderRepository.clear();
     }
 
     @Test
@@ -40,10 +41,10 @@ public class DiscountServiceTest {
         DateDTO dateDTO = Format.stringToInteger("3");
         OrderMenuRequest orderMenuRequest = Format.stringToMap("티본스테이크-1,바비큐립-1,초코케이크-2,제로콜라-1");
         Order order = new Order(new Date(dateDTO), new OrderMenu(orderMenuRequest));
-        when(orderRepository.findById(1L)).thenReturn(order);
+        orderRepository.save(order);
 
         // Act
-        discountService.applyAllDiscounts();
+        discountService.applyAllDiscounts(order.getId());
 
         // Assert
         assertEquals(4, discountService.getDiscounts().size());
@@ -55,11 +56,12 @@ public class DiscountServiceTest {
         DateDTO dateDTO = Format.stringToInteger("25");
         OrderMenuRequest orderMenuRequest = Format.stringToMap("티본스테이크-1,바비큐립-1,초코케이크-2,제로콜라-1");
         Order order = new Order(new Date(dateDTO), new OrderMenu(orderMenuRequest));
-        when(orderRepository.findById(1L)).thenReturn(order);
+        orderRepository.save(order);
+
+        Order bringOrder = orderRepository.findById(order.getId());
 
         // Act
-        discountService.applyAllDiscounts();
-        Discount christmasDiscount = discountService.createChristmasDiscount();
+        Discount christmasDiscount = discountService.createChristmasDiscount(bringOrder.getDate());
 
         // Assert
         assertNotNull(christmasDiscount);
@@ -72,11 +74,12 @@ public class DiscountServiceTest {
         DateDTO dateDTO = Format.stringToInteger("7");
         OrderMenuRequest orderMenuRequest = Format.stringToMap("티본스테이크-1,바비큐립-1,초코케이크-2,제로콜라-1");
         Order order = new Order(new Date(dateDTO), new OrderMenu(orderMenuRequest));
-        when(orderRepository.findById(1L)).thenReturn(order);
+        orderRepository.save(order);
+
+        Order bringOrder = orderRepository.findById(order.getId());
 
         // Act
-        discountService.applyAllDiscounts();
-        Discount weekdayDiscount = discountService.createWeekdayDiscount();
+        Discount weekdayDiscount = discountService.createWeekdayDiscount(bringOrder.getDate(), bringOrder.getOrderMenu());
 
         // Assert
         assertEquals(WeekdayDiscount.class, weekdayDiscount.getClass());
@@ -88,11 +91,12 @@ public class DiscountServiceTest {
         DateDTO dateDTO = Format.stringToInteger("8");
         OrderMenuRequest orderMenuRequest = Format.stringToMap("티본스테이크-1,바비큐립-1,초코케이크-2,제로콜라-1");
         Order order = new Order(new Date(dateDTO), new OrderMenu(orderMenuRequest));
-        when(orderRepository.findById(1L)).thenReturn(order);
+        orderRepository.save(order);
+
+        Order bringOrder = orderRepository.findById(order.getId());
 
         // Act
-        discountService.applyAllDiscounts();
-        Discount weekendDiscount = discountService.createWeekendDiscount();
+        Discount weekendDiscount = discountService.createWeekendDiscount(bringOrder.getDate(), bringOrder.getOrderMenu());
 
         // Assert
         assertEquals(WeekendDiscount.class, weekendDiscount.getClass());
@@ -104,11 +108,11 @@ public class DiscountServiceTest {
         DateDTO dateDTO = Format.stringToInteger("25");
         OrderMenuRequest orderMenuRequest = Format.stringToMap("티본스테이크-1,바비큐립-1,초코케이크-2,제로콜라-1");
         Order order = new Order(new Date(dateDTO), new OrderMenu(orderMenuRequest));
-        when(orderRepository.findById(1L)).thenReturn(order);
+        orderRepository.save(order);
 
+        Order bringOrder = orderRepository.findById(order.getId());
         // Act
-        discountService.applyAllDiscounts();
-        Discount specialDiscount = discountService.createSpecialDiscount();
+        Discount specialDiscount = discountService.createSpecialDiscount(bringOrder.getDate());
 
         // Assert
         assertEquals(SpecialDiscount.class, specialDiscount.getClass());
@@ -120,11 +124,11 @@ public class DiscountServiceTest {
         DateDTO dateDTO = Format.stringToInteger("25");
         OrderMenuRequest orderMenuRequest = Format.stringToMap("티본스테이크-1,바비큐립-1,초코케이크-2,제로콜라-1");
         Order order = new Order(new Date(dateDTO), new OrderMenu(orderMenuRequest));
-        when(orderRepository.findById(1L)).thenReturn(order);
+        orderRepository.save(order);
 
+        Order bringOrder = orderRepository.findById(order.getId());
         // Act
-        discountService.applyAllDiscounts();
-        Discount giftPriceDiscount = discountService.createGiftPriceDiscount();
+        Discount giftPriceDiscount = discountService.createGiftPriceDiscount(bringOrder.getTotalPrice());
 
         // Assert
         assertEquals(GiftPriceDiscount.class, giftPriceDiscount.getClass());
@@ -154,21 +158,4 @@ public class DiscountServiceTest {
         assertEquals(false, qualifiedForGift);
     }
 
-    @Test
-    void calculateTotalPrice_shouldCalculateTotalPriceCorrectly() {
-        // Arrange
-        DateDTO dateDTO = Format.stringToInteger("25");
-        OrderMenuRequest orderMenuRequest = Format.stringToMap("티본스테이크-1,바비큐립-1,초코케이크-2,제로콜라-1");
-        OrderMenu orderMenu = new OrderMenu(orderMenuRequest);
-
-        Order order = new Order(new Date(dateDTO), orderMenu);
-        when(orderRepository.findById(1L)).thenReturn(order);
-
-        // Act
-        discountService.applyAllDiscounts();
-        int totalPrice = discountService.calculateTotalPrice();
-
-        // Assert
-        assertEquals(1 * 55000 + 1 * 54000 + 2 * 15000 + 1 * 3000, totalPrice);
-    }
 }
